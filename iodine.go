@@ -1,5 +1,5 @@
 /*
- * Iodine, (C) 2014 Minio, Inc.
+ * Iodine, (C) 2015 Minio, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,20 +48,23 @@ var globalState = struct {
 	m map[string]string
 }{m: make(map[string]string)}
 
+// SetGlobalState - set global state
 func SetGlobalState(key, value string) {
 	globalState.Lock()
 	globalState.m[key] = value
 	globalState.Unlock()
 }
 
+// ClearGlobalState - clear info in globalState struct
 func ClearGlobalState() {
 	globalState.Lock()
-	for k, _ := range globalState.m {
+	for k := range globalState.m {
 		delete(globalState.m, k)
 	}
 	globalState.Unlock()
 }
 
+// GetGlobalState - get map from globalState struct
 func GetGlobalState() map[string]string {
 	result := make(map[string]string)
 	globalState.RLock()
@@ -72,7 +75,16 @@ func GetGlobalState() map[string]string {
 	return result
 }
 
-// Wrap an error, turning it into an iodine error.
+// GetGlobalStateKey - get value for key from globalState struct
+func GetGlobalStateKey(k string) string {
+	result, ok := globalState.m[k]
+	if !ok {
+		return ""
+	}
+	return result
+}
+
+// New - instantiate an error, turning it into an iodine error.
 // Adds an initial stack trace.
 func New(err error, data map[string]string) *Error {
 	entry := createStackEntry()
@@ -86,6 +98,7 @@ func New(err error, data map[string]string) *Error {
 	}
 }
 
+// createStackEntry - create stack entries
 func createStackEntry() StackEntry {
 	host, _ := os.Hostname()
 	_, file, line, _ := runtime.Caller(2)
