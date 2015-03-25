@@ -65,17 +65,15 @@ func createStackEntry() StackEntry {
 
 func (err *Error) Annotate(info map[string]string) *Error {
 	data := make(map[string]string)
-	if info != nil {
-		for k, v := range info {
-			data[k] = v
-		}
+	for k, v := range info {
+		data[k] = v
 	}
 	entry := createStackEntry()
 	err.Stack = append(err.Stack, entry)
 	return err
 }
 
-func (err Error) EmitJson() ([]byte, error) {
+func (err Error) EmitJSON() ([]byte, error) {
 	return json.Marshal(err)
 }
 
