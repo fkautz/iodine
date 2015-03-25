@@ -102,13 +102,37 @@ func New(err error, data map[string]string) *Error {
 func createStackEntry() StackEntry {
 	host, _ := os.Hostname()
 	_, file, line, _ := runtime.Caller(2)
+	data := GetGlobalState()
+	for k, v := range getSystemData() {
+		data[k] = v
+	}
 	entry := StackEntry{
 		Host: host,
 		File: file,
 		Line: line,
-		Data: GetGlobalState(),
+		Data: data,
 	}
 	return entry
+}
+
+func getSystemData() map[string]string {
+	host, err := os.Hostname()
+	if err != nil {
+		host = ""
+	}
+	memstats := &runtime.MemStats{}
+	runtime.ReadMemStats(memstats)
+	return map[string]string{
+		"sys.host":               host,
+		"sys.os":                 runtime.GOOS,
+		"sys.arch":               runtime.GOARCH,
+		"sys.go":                 runtime.Version(),
+		"sys.cpus":               strconv.Itoa(runtime.NumCPU()),
+		"sys.mem.used":           strconv.FormatUint(memstats.Alloc, 10),
+		"sys.mem.allocated":      strconv.FormatUint(memstats.TotalAlloc, 10),
+		"sys.mem.heap.used":      strconv.FormatUint(memstats.HeapAlloc, 10),
+		"sys.mem.heap.allocated": strconv.FormatUint(memstats.HeapSys, 10),
+	}
 }
 
 // Annotate an error with a stack entry and returns itself
