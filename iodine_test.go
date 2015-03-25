@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"log"
 	"testing"
 )
 
@@ -85,7 +84,6 @@ func TestState(t *testing.T) {
 		}
 	} else {
 		err.Annotate(nil)
-		log.Println(err.EmitHumanReadable())
 		t.Error("foo2 should be set")
 	}
 }
