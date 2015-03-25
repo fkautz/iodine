@@ -45,6 +45,8 @@ type StackEntry struct {
 	Data map[string]string
 }
 
+var gopath string
+
 var globalState = struct {
 	sync.RWMutex
 	m map[string]string
@@ -104,11 +106,6 @@ func New(err error, data map[string]string) *Error {
 func createStackEntry() StackEntry {
 	host, _ := os.Hostname()
 	_, file, line, _ := runtime.Caller(2)
-	_, iodineFile, _, _ := runtime.Caller(0)
-	iodineFile = path.Dir(iodineFile)       // trim iodine.go
-	iodineFile = path.Dir(iodineFile)       // trim iodine
-	iodineFile = path.Dir(iodineFile)       // trim minio-io
-	gopath := path.Dir(iodineFile) + "/"    // trim github.com
 	file = strings.TrimPrefix(file, gopath) // trim gopath from file
 
 	data := GetGlobalState()
@@ -173,4 +170,12 @@ func (err Error) EmitHumanReadable() string {
 // Emits the original error message
 func (err Error) Error() string {
 	return err.EmbeddedError.Error()
+}
+
+func init() {
+	_, iodineFile, _, _ := runtime.Caller(0)
+	iodineFile = path.Dir(iodineFile)   // trim iodine.go
+	iodineFile = path.Dir(iodineFile)   // trim iodine
+	iodineFile = path.Dir(iodineFile)   // trim minio-io
+	gopath = path.Dir(iodineFile) + "/" // trim github.com
 }
