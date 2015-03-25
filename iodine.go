@@ -21,8 +21,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 )
 
@@ -102,10 +104,18 @@ func New(err error, data map[string]string) *Error {
 func createStackEntry() StackEntry {
 	host, _ := os.Hostname()
 	_, file, line, _ := runtime.Caller(2)
+	_, iodineFile, _, _ := runtime.Caller(0)
+	iodineFile = path.Dir(iodineFile)       // trim iodine.go
+	iodineFile = path.Dir(iodineFile)       // trim iodine
+	iodineFile = path.Dir(iodineFile)       // trim minio-io
+	gopath := path.Dir(iodineFile) + "/"    // trim github.com
+	file = strings.TrimPrefix(file, gopath) // trim gopath from file
+
 	data := GetGlobalState()
 	for k, v := range getSystemData() {
 		data[k] = v
 	}
+
 	entry := StackEntry{
 		Host: host,
 		File: file,
