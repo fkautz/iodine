@@ -90,7 +90,7 @@ func GetGlobalStateKey(k string) string {
 
 // Error - instantiate an error, turning it into an iodine error.
 // Adds an initial stack trace.
-func Error(err error, data map[string]string) error {
+func New(err error, data map[string]string) error {
 	if err != nil {
 		entry := createStackEntry()
 		var newErr WrappedError
